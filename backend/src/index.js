@@ -2,9 +2,15 @@ import express from 'express';
 import os from 'os';
 
 const port = 3000;
+const id = process.env.BACKEND_ID || 'backend-unknown'
 
 // creo app express
 const app = express();
+
+app.use((req, res, next) => {
+  res.setHeader('X-Backend-ID', id);
+  next();
+});
 
 // creo endpoint ping
 app.get('/ping', (req, res) => {

@@ -22,3 +22,7 @@ Avvio di un cluster con PM2 (va installato globalmente con `npm i -g pm2`)
 
 ## Step 2
 `docker compose up --build`
+
+
+## Troubles
+- se non parte docker provare con `bcdedit /set hypervisorlaunchtype auto`

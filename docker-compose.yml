@@ -36,6 +36,56 @@ services:
     networks:
       - app-network
 
+  mongo-replica-1:
+    image: mongo:latest
+    restart: unless-stopped
+    container_name: mongo-replica-1
+    volumes:
+      - ./data/mongo1:/data/db
+    networks:
+      - app-network 
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  mongo-replica-2:
+    image: mongo:latest
+    restart: unless-stopped
+    container_name: mongo-replica-2
+    volumes:
+      - ./data/mongo2:/data/db
+    networks:
+      - app-network 
+    ports:
+      - "27018:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  mongo-replica-3:
+    image: mongo:latest
+    restart: unless-stopped
+    container_name: mongo-replica-3
+    volumes:
+      - ./data/mongo3:/data/db
+    networks:
+      - app-network 
+    ports:
+      - "27019:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  mongo-replica-setup:
+    image: mongo:latest
+    container_name: mongo-replica-setup
+    depends_on:
+      - mongo-replica-1
+      - mongo-replica-2
+      - mongo-replica-3
+    networks:
+      - app-network
+    restart: "no"
+    volumes:
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/bash","/scripts/init-replica.sh"]
+
 networks:
   app-network:
     driver: bridge

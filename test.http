@@ -2,3 +2,27 @@ GET http://localhost:3000/heavy
 
 ###
 GET http://localhost:80/ping
+
+###
+POST http://localhost:80/job-for-all
+Content-Type: application/json
+
+{
+    "name": "esempio di job"
+}
+
+###
+POST http://localhost:80/pdf
+Content-Type: application/json
+
+{
+    "url": "https://itsaltoadriatico.it"
+}
+
+###
+POST http://localhost:80/pdf
+Content-Type: application/json
+
+{
+    "url": "https://ansa.it"
+}

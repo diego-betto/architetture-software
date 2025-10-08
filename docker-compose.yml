@@ -4,24 +4,45 @@ services:
     restart: "no"
     environment:
       - BACKEND_ID=backend-1
+      - NODE_ENV=production
+      - CHROMIUM_PATH=/usr/bin/chromium
+      - PORT=8080
     networks:
       - app-network
+    depends_on:
+      - redis
+    volumes:
+      - ./data/pdf:/usr/src/app/pdf
 
   backend2:
     build: ./backend
     restart: "no"
     environment:
       - BACKEND_ID=backend-2
+      - NODE_ENV=production
+      - CHROMIUM_PATH=/usr/bin/chromium
+      - PORT=8080
     networks:
       - app-network
+    depends_on:
+      - redis
+    volumes:
+      - ./data/pdf:/usr/src/app/pdf
 
   backend3:
     build: ./backend
     restart: "no"
     environment:
       - BACKEND_ID=backend-3
+      - NODE_ENV=production
+      - CHROMIUM_PATH=/usr/bin/chromium
+      - PORT=8080
     networks:
       - app-network
+    depends_on:
+      - redis
+    volumes:
+      - ./data/pdf:/usr/src/app/pdf
 
   nginx:
     image: nginx:latest
@@ -36,55 +57,83 @@ services:
     networks:
       - app-network
 
-  mongo-replica-1:
-    image: mongo:latest
-    restart: unless-stopped
-    container_name: mongo-replica-1
+  # mongo-replica-1:
+  #   image: mongo:latest
+  #   restart: unless-stopped
+  #   container_name: mongo-replica-1
+  #   volumes:
+  #     - ./data/mongo1:/data/db
+  #   networks:
+  #     - app-network 
+  #   ports:
+  #     - "27017:27017"
+  #   command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  # mongo-replica-2:
+  #   image: mongo:latest
+  #   restart: unless-stopped
+  #   container_name: mongo-replica-2
+  #   volumes:
+  #     - ./data/mongo2:/data/db
+  #   networks:
+  #     - app-network 
+  #   ports:
+  #     - "27018:27017"
+  #   command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  # mongo-replica-3:
+  #   image: mongo:latest
+  #   restart: unless-stopped
+  #   container_name: mongo-replica-3
+  #   volumes:
+  #     - ./data/mongo3:/data/db
+  #   networks:
+  #     - app-network 
+  #   ports:
+  #     - "27019:27017"
+  #   command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+  # mongo-replica-setup:
+  #   image: mongo:latest
+  #   container_name: mongo-replica-setup
+  #   depends_on:
+  #     - mongo-replica-1
+  #     - mongo-replica-2
+  #     - mongo-replica-3
+  #   networks:
+  #     - app-network
+  #   restart: "no"
+  #   volumes:
+  #     - ./scripts:/scripts:ro
+  #   entrypoint: ["/bin/bash","/scripts/init-replica.sh"]
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
     volumes:
-      - ./data/mongo1:/data/db
+      - ./data/redis:/data
     networks:
       - app-network 
-    ports:
-      - "27017:27017"
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
-
-  mongo-replica-2:
-    image: mongo:latest
     restart: unless-stopped
-    container_name: mongo-replica-2
-    volumes:
-      - ./data/mongo2:/data/db
-    networks:
-      - app-network 
-    ports:
-      - "27018:27017"
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
 
-  mongo-replica-3:
-    image: mongo:latest
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
     restart: unless-stopped
-    container_name: mongo-replica-3
-    volumes:
-      - ./data/mongo3:/data/db
-    networks:
-      - app-network 
-    ports:
-      - "27019:27017"
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
-
-  mongo-replica-setup:
-    image: mongo:latest
-    container_name: mongo-replica-setup
-    depends_on:
-      - mongo-replica-1
-      - mongo-replica-2
-      - mongo-replica-3
     networks:
       - app-network
-    restart: "no"
     volumes:
-      - ./scripts:/scripts:ro
-    entrypoint: ["/bin/bash","/scripts/init-replica.sh"]
+        - ./data/mailpit:/data
+    ports:
+        - 8025:8025
+        - 1025:1025
+    environment:
+        MP_MAX_MESSAGES: 5000
+        MP_DATABASE: /data/mailpit.db
+        MP_SMTP_AUTH_ACCEPT_ANY: 1
+        MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
 networks:
   app-network:
